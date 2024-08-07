@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bills</title>
+    <link rel="stylesheet" href="{{ ASSETS_ROOT }}/css/black-dashboard.css" />
+    <link rel="stylesheet" href="{{ ASSETS_ROOT }}/css/nucleo-icons.css" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap");
+
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        font-family: "Roboto", sans-serif;
+      }
+
+      html,
+      body {
+        height: 100%;
+        background-color: #f5f6fa;
+        overflow-x: hidden;
+      }
+
+      .page-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      main {
+        flex: 1;
+        padding: 2rem;
+        background: #f5f6fa;
+        /*background: url("{{ ASSETS_ROOT }}/img/whiteModeUserBg.jpeg") center /
+          cover no-repeat fixed;*/
+      }
+      nav {
+        background-color: white;
+        color: black;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 100px;
+        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.115);
+      }
+
+      .nav-logo {
+        display: flex;
+        align-items: center;
+      }
+
+      .nav-logo img {
+        width: 60px;
+        margin-right: 10px;
+      }
+
+      .nav-text {
+        font-size: 30px;
+        font-weight: bold;
+      }
+      nav .ul-container {
+        list-style: none;
+        display: flex;
+        align-items: center;
+      }
+      nav ul {
+        display: flex;
+        flex-direction: row;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      nav ul li {
+        margin: 0 20px;
+        overflow: hidden;
+      }
+
+      nav ul li:first-child {
+        margin-left: 40px;
+      }
+
+      nav ul li:last-child {
+        margin-right: 0;
+      }
+
+      nav ul li a {
+        color: #333;
+        text-decoration: none;
+        font-size: 20px;
+        font-weight: bold;
+        transition: color 0.3s;
+      }
+
+      nav ul li a:hover {
+        color: #6e67eb;
+      }
+
+      .menu-button-container {
+        display: none;
+        height: 100%;
+        width: 30px;
+        cursor: pointer;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #menu-toggle {
+        display: none;
+      }
+
+      .menu-button,
+      .menu-button::before,
+      .menu-button::after {
+        display: block;
+        background-color: black;
+        position: absolute;
+        height: 3px;
+        width: 30px;
+        transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1);
+        border-radius: 2px;
+      }
+
+      .menu-button::before {
+        content: "";
+        margin-top: -8px;
+      }
+
+      .menu-button::after {
+        content: "";
+        margin-top: 8px;
+      }
+
+      #menu-toggle:checked + .menu-button-container .menu-button::before {
+        margin-top: 0px;
+        transform: rotate(405deg);
+      }
+
+      #menu-toggle:checked + .menu-button-container .menu-button {
+        background: rgba(255, 255, 255, 0);
+      }
+
+      #menu-toggle:checked + .menu-button-container .menu-button::after {
+        margin-top: 0px;
+        transform: rotate(-405deg);
+      }
+
+      .theme-toggle-container {
+        position: relative;
+        width: 60px;
+        height: 30px;
+      }
+
+      .theme-toggle {
+        appearance: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #8e1f1f;
+        border-radius: 30px;
+        cursor: pointer;
+        outline: none;
+        transition: background-color 0.3s;
+      }
+
+      .theme-toggle:before {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s, background-color 0.3s;
+      }
+      input[type="checkbox"] {
+        visibility: hidden;
+      }
+
+      input[type="checkbox"]:checked + .theme-toggle:before {
+        transform: translateX(30px);
+        background: linear-gradient(40deg, #ff0080, #ff8c00 70%);
+      }
+      .theme-toggle.dark {
+        background-color: #eaeaea;
+      }
+
+      .theme-toggle.dark:before {
+        background: linear-gradient(40deg, #ff0080, #ff8c00 70%);
+      }
+
+      .card {
+        background: #ffffff;
+        box-shadow: 0 1px 15px 0 rgba(0, 0, 0, 0.05);
+      }
+      .card .card-header .card-title,
+      .card .card-body .card-title {
+        color: #1d253b;
+      }
+      .table > thead > tr > th,
+      .table button.btn-neutral.btn-link {
+        color: rgba(34, 42, 66, 0.774);
+      }
+      .table > tbody > tr > td {
+        color: rgba(34, 42, 66, 0.7) !important;
+      }
+
+      .table > thead > tr > th,
+      .table > tbody > tr > th,
+      .table > tfoot > tr > th,
+      .table > thead > tr > td,
+      .table > tbody > tr > td,
+      .table > tfoot > tr > td {
+        border-color: rgba(34, 42, 66, 0.2);
+      }
+
+      .card-body i {
+        color: #9a9a9a;
+        font-size: 1.4em;
+        transition: 0.3s;
+      }
+      .card-body i:hover {
+        color: #575757;
+      }
+      .table > tbody > tr > .button-td,
+      .table > tbody > tr > .button-td {
+        width: 4rem;
+        padding: 5px 0px;
+      }
+      .tooltip-inner {
+        font-size: 10.5px;
+        padding: 5px 10px;
+      }
+      .tooltip {
+        border-radius: 4px;
+      }
+      #show-filter-container {
+        display: inline;
+        margin: 10px;
+        color: #1d253b;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .filter-container.show {
+        max-height: 1000px;
+        opacity: 1;
+        visibility: visible;
+      }
+      .filter-container {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+        color: black;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        visibility: hidden;
+        transition: max-height 1s, opacity 1s, visibility 0.5s;
+      }
+
+      .filter-container div {
+        margin: 10px;
+        width: 100%;
+        max-width: 180px;
+      }
+
+      .filter-container div select {
+        width: 100%;
+        max-width: 180px;
+        font-size: 18px;
+      }
+
+      .filter-container #quarter-number-filter {
+        width: 100%;
+        max-width: 180px;
+        line-height: normal;
+        font-size: 18px;
+      }
+
+      footer {
+        background-color: rgba(255, 255, 255, 0.803);
+        border-top: 1px solid rgba(0, 0, 0, 0.291);
+
+        text-align: center;
+        padding: 20px 0;
+      }
+
+      .footer-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .footer-text {
+        font-size: 18px;
+        margin-right: 10px;
+        color: black;
+        font-weight: bold;
+      }
+      table > tbody > tr > .button-td,
+      .table > tbody > tr > .button-td {
+        text-align: center;
+      }
+
+      /* dark mode code */
+      body.dark-mode {
+        color: #fff;
+      }
+
+      body.dark-mode main {
+        /*background: url("{{ ASSETS_ROOT }}/img/darkModeUserBg.jpg") center /
+          cover no-repeat fixed;*/
+        background: linear-gradient(#1e1e2f, #1e1e24);
+      }
+
+      body.dark-mode .menu-button,
+      body.dark-mode .menu-button::before,
+      body.dark-mode .menu-button::after {
+        background-color: white;
+      }
+      body.dark-mode .menu li {
+        background: linear-gradient(#1e1e2f, #1e1e24);
+      }
+      body.dark-mode .menu.show li {
+        border-top: 1px solid #9f9f9f54;
+      }
+
+      body.dark-mode .theme-toggle.dark {
+        background: #3e3e3e;
+      }
+      body.dark-mode .theme-toggle.dark::before {
+        box-shadow: inset -3px -2px 5px -2px #8983f7,
+          inset -10px -4px 0 0 #a3dafb;
+        background: #3e3e3e;
+      }
+
+      nav.dark-mode {
+        /*background: rgb(1, 3, 26);*/
+        background: linear-gradient(#1e1e2f, #1e1e24);
+        border-bottom: 1px solid rgba(199, 199, 199, 0.2);
+        color: white;
+        box-shadow: none;
+      }
+      nav.dark-mode ul li a {
+        color: white;
+      }
+      nav.dark-mode ul li a:hover {
+        color: #b0acff;
+      }
+      body.dark-mode .menu.show > li:not(:first-child) {
+        border-bottom: 1px solid #9f9f9f54;
+      }
+      footer.dark-mode {
+        /*background: rgb(1, 3, 26);*/
+        background: linear-gradient(#1e1e2f, #1e1e24);
+        border-top: 1px solid rgba(199, 199, 199, 0.2);
+      }
+      footer.dark-mode .footer-text {
+        color: white;
+      }
+
+      body.dark-mode .card {
+        background: #27293d;
+        box-shadow: 0 1px 15px 0 rgba(0, 0, 0, 0.1);
+      }
+      body.dark-mode .card .card-header .card-title,
+      body.dark-mode .card .card-body .card-title {
+        color: rgba(255, 255, 255, 0.8);
+      }
+      body.dark-mode .table > thead > tr > th,
+      body.dark-mode .table button.btn-neutral.btn-link {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      body.dark-mode .table > tbody > tr > td {
+        color: rgba(255, 255, 255, 0.7) !important;
+      }
+
+      body.dark-mode .table > thead > tr > th,
+      body.dark-mode .table > tbody > tr > th,
+      body.dark-mode .table > tfoot > tr > th,
+      body.dark-mode .table > thead > tr > td,
+      body.dark-mode .table > tbody > tr > td,
+      body.dark-mode .table > tfoot > tr > td {
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+
+      body.dark-mode .filter-container {
+        color: white;
+      }
+      body.dark-mode #show-filter-container {
+        color: white;
+      }
+      @media screen and (max-width: 850px) {
+        nav {
+          padding: 20px 40px;
+          position: relative;
+        }
+
+        .menu-button-container {
+          display: flex;
+        }
+        .menu {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          flex-direction: column;
+          width: 100%;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+
+        .menu li {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+          background-color: white;
+          color: black;
+
+          height: 0px;
+          margin: 0;
+          padding: 0;
+          border: 0;
+          transition: height 400ms cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .menu.show li {
+          border-top: 1px solid #44444454;
+          height: 3em;
+          padding: 0.5em;
+          transition: height 400ms cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .menu.show > li:not(:first-child) {
+          border-bottom: 1px solid #44444454;
+        }
+        nav ul li:first-child {
+          margin-left: 0px;
+        }
+      }
+      @media screen and (max-width: 550px) {
+        main {
+          padding: 1rem;
+        }
+        nav {
+          padding: 20px 15px;
+        }
+
+        .menu-button,
+        .menu-button::before,
+        .menu-button::after {
+          height: 3px;
+          width: 25px;
+        }
+        .menu li a {
+          font-size: 16px;
+        }
+        .nav-logo img {
+          width: 45px;
+        }
+        .nav-text {
+          font-size: 20px;
+        }
+        .theme-toggle-container {
+          width: 40px;
+          height: 20px;
+        }
+        .theme-toggle:before {
+          top: 1px;
+          left: 0px;
+          width: 18px;
+          height: 18px;
+        }
+        input[type="checkbox"]:checked + .theme-toggle:before {
+          transform: translateX(20px);
+        }
+
+        .filter-container div select {
+          font-size: 14px;
+        }
+
+        .filter-container #quarter-number-filter {
+          font-size: 14px;
+        }
+        footer {
+          padding: 12px 0;
+        }
+        .footer-text {
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-container">
+      <header>
+        <nav>
+          <input id="menu-toggle" type="checkbox" />
+          <label class="menu-button-container" for="menu-toggle">
+            <div class="menu-button"></div>
+          </label>
+          <div class="nav-logo">
+            <a
+              href="user_profile"
+              class="simple-text logo-mini-dark"
+              style="display: none"
+            >
+              <img
+                class="dark-mode-logo"
+                src="{{ ASSETS_ROOT }}/img/nitLogoWhite.png"
+                alt="Logo"
+              />
+            </a>
+            <a href="user_profile" class="simple-text logo-mini">
+              <img
+                class="white-mode-logo"
+                src="{{ ASSETS_ROOT }}/img/nitsriLogo.png"
+                alt="Logo"
+              />
+            </a>
+            <div class="nav-text">Bills</div>
+          </div>
+          <div class="ul-container">
+            <div class="theme-toggle-container">
+              <input type="checkbox" id="themeToggle" class="bsc" checked />
+              <label class="theme-toggle dark" for="themeToggle"></label>
+            </div>
+            <ul class="menu">
+              <li>
+                <a href="{% url 'user_profile'%}">Profile</a>
+              </li>
+              <li>
+                <a href="{% url 'user_bills'%}">Bills</a>
+              </li>
+              <li>
+                <a href="{% url 'change_password.html'%}">Change Password</a>
+              </li>
+              <li>
+                <a href="{% url 'logoutuser'%}">Logout</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <main>
+        <div class="content">
+          <div class="row">
+            <div class="col-md-12">
+              <div id="show-filter-container">
+                Show Filters <i class="tim-icons icon-minimal-down"></i>
+              </div>
+              <div class="filter-container">
+                <div class="quarter-number-filter">
+                  <label for="quarter-number-filter"
+                    >Filter by Quarter Number:</label
+                  >
+                  <input type="text" id="quarter-number-filter" />
+                </div>
+                <div>
+                  <label for="quarter-type-filter"
+                    >Filter by Quarter Type:</label
+                  >
+                  <select id="quarter-type-filter">
+                    <option value="">All</option>
+                    {% for value in quarterType %}
+                    <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div>
+                  <label for="meter-type-filter">Filter by Meter Type:</label>
+                  <select id="meter-type-filter">
+                    <option value="">All</option>
+                    <option value="metered">Metered</option>
+                    <option value="unmetered">Unmetered</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="id_month_selection">Month</label>
+                  <select id="id_month_selection" name="selected_month">
+                    <option value="">All</option>
+                    <option value="1">January (01)</option>
+                    <option value="2">February (02)</option>
+                    <option value="3">March (03)</option>
+                    <option value="4">April (04)</option>
+                    <option value="5">May (05)</option>
+                    <option value="6">June (06)</option>
+                    <option value="7">July (07)</option>
+                    <option value="8">August (08)</option>
+                    <option value="9">September (09)</option>
+                    <option value="10">October (10)</option>
+                    <option value="11">November (11)</option>
+                    <option value="12">December (12)</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="id_year_selection">Year</label>
+                  <select id="id_year_selection" name="selected_year">
+                    <option value="">All</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="content content-table">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="card">
+                      <div class="card-header">
+                        <h4 class="card-title">List of Bills</h4>
+                      </div>
+                      <div class="card-body">
+                        <div class="table-responsive">
+                          <table class="table tablesorter" id="">
+                            <thead class="text-primary">
+                              <tr>
+                                <th class="text-center">Username</th>
+                                <th class="text-center">Quarter Number</th>
+                                <th class="text-center">Quarter Type</th>
+                                <th class="text-center">Total Amount</th>
+                                <th class="text-center">Metering</th>
+                                <th class="text-center">Month</th>
+                                <th class="text-center">Year</th>
+                                <th class="text-center">Download</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for bill in metered_bills %}
+                              <tr>
+                                <td class="text-center">
+                                  {{ bill.user_name }}
+                                </td>
+                                <td class="text-center quarter-number-column">
+                                  {{ bill.room_number }}
+                                </td>
+                                <td class="text-center quarter-type-column">
+                                  {{ bill.quarter_type }}
+                                </td>
+                                <td class="text-center">
+                                  {{ bill.total_bill }}
+                                </td>
+                                <td class="text-center meter-type-column">
+                                  Metered
+                                </td>
+                                <td class="text-center month-column">
+                                  {{ bill.month }}
+                                </td>
+                                <td class="text-center year-column">
+                                  {{ bill.year }}
+                                </td>
+                                <td class="td-actions button-td">
+                                  <a
+                                    href="{% url 'metered_bill.html' bill.metered_bill_id %}"
+                                    class="btn btn-link"
+                                    data-toggle="tooltip"
+                                    title="Download Bill"
+                                    target="_blank"
+                                  >
+                                    <i
+                                      class="tim-icons icon-cloud-download-93"
+                                    ></i>
+                                  </a>
+                                </td>
+                              </tr>
+                              {% endfor %} {% for bill in unmetered_bills %}
+                              <tr>
+                                <td class="text-center">
+                                  {{ bill.user_name }}
+                                </td>
+                                <td class="text-center quarter-number-column">
+                                  {{ bill.room_number }}
+                                </td>
+                                <td class="text-center quarter-type-column">
+                                  {{ bill.quarter_type }}
+                                </td>
+                                <td class="text-center">
+                                  {{ bill.total_bill }}
+                                </td>
+                                <td class="text-center meter-type-column">
+                                  Unmetered
+                                </td>
+                                <td class="text-center month-column">
+                                  {{ bill.month }}
+                                </td>
+                                <td class="text-center year-column">
+                                  {{ bill.year }}
+                                </td>
+                                <td class="td-actions button-td">
+                                  <a
+                                    href="{% url 'unmetered_bill.html' bill.unmetered_bill_id %}"
+                                    class="btn btn-link"
+                                    data-toggle="tooltip"
+                                    title="Download Bill"
+                                    target="_blank"
+                                  >
+                                    <i
+                                      class="tim-icons icon-cloud-download-93"
+                                    ></i>
+                                  </a>
+                                </td>
+                              </tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer>
+        <div class="footer-container">
+          <p class="footer-text">
+            Team Z &copy; <span id="currentYear"></span> All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      function setThemePreference(theme) {
+        localStorage.setItem("theme", theme);
+      }
+
+      function getThemePreference() {
+        return localStorage.getItem("theme") || "light";
+      }
+
+      function applyThemePreference() {
+        const body = document.body;
+        const nav = document.querySelector("nav");
+        const footer = document.querySelector("footer");
+        const whiteContentImg = document.querySelector(".logo-mini");
+        const darkContentImg = document.querySelector(".logo-mini-dark");
+
+        const themeToggle = document.getElementById("themeToggle");
+        const menu = document.querySelector(".menu");
+
+        const currentYearElement = document.getElementById("currentYear");
+        const currentYear = new Date().getFullYear();
+        currentYearElement.textContent = currentYear;
+
+        const themePreference = getThemePreference();
+
+        if (themePreference === "dark") {
+          whiteContentImg.style.display = "none";
+          darkContentImg.style.display = "inline";
+          body.classList.add("dark-mode");
+          nav.classList.add("dark-mode");
+          footer.classList.add("dark-mode");
+          themeToggle.checked = true;
+        } else {
+          whiteContentImg.style.display = "inline";
+          darkContentImg.style.display = "none";
+          body.classList.remove("dark-mode");
+          nav.classList.remove("dark-mode");
+          footer.classList.remove("dark-mode");
+          themeToggle.checked = false;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        applyThemePreference();
+      });
+
+      const themeToggle = document.getElementById("themeToggle");
+      themeToggle.addEventListener("click", () => {
+        if (themeToggle.checked) {
+          setThemePreference("dark");
+        } else {
+          setThemePreference("light");
+        }
+        applyThemePreference();
+      });
+
+      const burgerBtn = document.getElementById("menu-toggle");
+      const menu = document.querySelector(".menu");
+      burgerBtn.addEventListener("click", () => {
+        menu.classList.toggle("show");
+      });
+
+      $(document).ready(function () {
+        // Function to handle table filtering
+        function filterTable() {
+          var quarterNumber = $("#quarter-number-filter").val().trim();
+          var quarterType = $("#quarter-type-filter").val();
+          var meterType = $("#meter-type-filter").val();
+          var selectedMonth = $("#id_month_selection").val();
+          var selectedYear = $("#id_year_selection").val();
+
+          $(".table tbody tr").each(function () {
+            var row = $(this);
+            var quarterNumberColumn = row
+              .find(".quarter-number-column")
+              .text()
+              .trim();
+            var quarterTypeColumn = row
+              .find(".quarter-type-column")
+              .text()
+              .trim();
+            var meterTypeColumn = row
+              .find(".meter-type-column")
+              .text()
+              .trim()
+              .toLowerCase();
+            var monthColumn = row.find(".month-column").text().trim();
+            var yearColumn = row.find(".year-column").text().trim();
+
+            var showRow =
+              (quarterNumber === "" || quarterNumberColumn === quarterNumber) &&
+              (quarterType === "" || quarterTypeColumn === quarterType) &&
+              (meterType === "" ||
+                meterTypeColumn === meterType.toLowerCase()) &&
+              (selectedMonth === "" || monthColumn === selectedMonth) &&
+              (selectedYear === "" || yearColumn === selectedYear);
+
+            if (showRow) {
+              row.show();
+            } else {
+              row.hide();
+            }
+          });
+        }
+
+        // Trigger filtering when any filter is changed
+        $(
+          "#quarter-number-filter, #quarter-type-filter, #meter-type-filter, #id_month_selection, #id_year_selection"
+        ).change(function () {
+          filterTable();
+        });
+
+        // Initial filtering on page load
+        filterTable();
+      });
+
+      const showFilterBtn = document.getElementById("show-filter-container");
+      const filterContainer = document.querySelector(".filter-container");
+      showFilterBtn.addEventListener("click", () => {
+        filterContainer.classList.toggle("show");
+        if (filterContainer.classList.contains("show")) {
+          showFilterBtn.innerHTML =
+            "Hide Filters <i class='tim-icons icon-minimal-up'></i>";
+        } else {
+          showFilterBtn.innerHTML =
+            "Show Filters <i class='tim-icons icon-minimal-down'></i>";
+        }
+      });
+    </script>
+  </body>
+</html>

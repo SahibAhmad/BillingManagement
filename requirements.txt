@@ -1,0 +1,13 @@
+asgiref==3.7.2
+django==4.2.3
+pip==23.0.1
+setuptools==67.6.1
+sqlparse==0.4.4
+autopep8==2.0.2
+dj-database-url==2.0.0
+gunicorn==20.1.0
+pycodestyle==2.10.0
+pytz==2023.3
+toml==0.10.2
+whitenoise==6.5.0
+django-environ==0.10.0

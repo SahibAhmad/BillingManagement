@@ -1,0 +1,170 @@
+{% extends "layouts/base.html" %} {% block title %} Dashboard {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+  .main-panel > .content {
+    min-height: calc(100vh - 70px);
+  }
+  .navbar.navbar-absolute {
+    z-index: 100000;
+}
+  #notification-bar {
+    font-size: large;
+    font-weight: bolder;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    z-index: 9999;
+  }
+  .hidden {
+    display: none;
+  }
+  .success {
+    background-color: #4caf50;
+  }
+  .error {
+    background-color: #f44336;
+  }
+</style>
+{% endblock stylesheets %} {% block content %}
+<div id="notification-bar" class="hidden"></div>
+<div class="content">
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-chart">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-sm-6 text-left">
+              <h5 class="card-category">last year</h5>
+              <h2 class="card-title">Amounts</h2>
+            </div>
+            <div class="col-sm-6">
+              <div
+                class="btn-group btn-group-toggle float-right"
+                data-toggle="buttons"
+              >
+                <label class="btn btn-sm btn-primary btn-simple active" id="0">
+                  <input type="radio" name="options" checked />
+                  <span
+                    class="d-none d-sm-block d-md-block d-lg-block d-xl-block"
+                    >Total Amt</span
+                  >
+                  <span class="d-block d-sm-none">
+                    <i class="tim-icons icon-single-02"></i>
+                  </span>
+                </label>
+                <label class="btn btn-sm btn-primary btn-simple" id="1">
+                  <input type="radio" class="d-none d-sm-none" name="options" />
+                  <span
+                    class="d-none d-sm-block d-md-block d-lg-block d-xl-block"
+                    >Metered</span
+                  >
+                  <span class="d-block d-sm-none">
+                    <i class="tim-icons icon-gift-2"></i>
+                  </span>
+                </label>
+                <label class="btn btn-sm btn-primary btn-simple" id="2">
+                  <input type="radio" class="d-none" name="options" />
+                  <span
+                    class="d-none d-sm-block d-md-block d-lg-block d-xl-block"
+                    >Unmetered</span
+                  >
+                  <span class="d-block d-sm-none">
+                    <i class="tim-icons icon-tap-02"></i>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="chartBig1"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-chart">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-sm-6 text-left">
+              <h5 class="card-category">last year</h5>
+              <h2 class="card-title">Units Consumed</h2>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-area">
+              <canvas id="chartLinePurple"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  {% endblock content %}
+
+  <!-- Specific Page JS goes HERE  -->
+  {% block javascripts %}
+
+  <script>
+    $(document).ready(function () {
+      // Javascript method's body can be found in assets/js/demos.js
+      let data1 = {{bills}};
+      let m_data1 = {{m_bills}};
+      let u_data1 = {{u_bills}};
+      let units1 = {{units}};
+      let label = [];
+
+          let months = {{month}};
+          let years = {{year}};
+          for(var i =0;i<12;i++){
+            label[i] = months[i] + "-" + years[i];
+          }
+
+
+      demo.initDashboardPageCharts(data1,label,m_data1,u_data1,units1);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+            const notificationBar = document.getElementById("notification-bar");
+
+            function showNotification(status, message) {
+              notificationBar.textContent = message;
+              notificationBar.classList.add(status);
+              notificationBar.classList.remove("hidden");
+              setTimeout(function () {
+                hideNotification();
+              }, 3000);
+            }
+
+            function hideNotification() {
+              notificationBar.textContent = "";
+              notificationBar.classList.remove("success", "error");
+              notificationBar.classList.add("hidden");
+            }
+
+            const successMessage = "{{ success_message }}";
+            const errorMessage = "{{ error_message }}";
+
+            if (successMessage.trim() !== "") {
+              showNotification("success", successMessage.trim());
+            }
+
+            if (errorMessage.trim() !== "") {
+              showNotification("error", errorMessage.trim());
+            }
+          });
+  </script>
+
+  {% endblock javascripts %}
+</div>

@@ -1,0 +1,308 @@
+{% extends "layouts/base.html" %} {% block title %}Consumers{%endblock%}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+  /* Add your custom styles here */
+  .navbar.navbar-absolute {
+    z-index: 100000;
+  }
+  .card-body i {
+    color: #9a9a9a;
+    font-size: 1.4em;
+  }
+  .card-body i:hover {
+    color: #575757;
+  }
+  #notification-bar {
+    font-size: large;
+    font-weight: bolder;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    z-index: 9999;
+  }
+  .hidden {
+    display: none;
+  }
+  .success {
+    background-color: #4caf50;
+  }
+  .error {
+    background-color: #f44336;
+  }
+  .table > tbody > tr > .button-td {
+    width: 4rem;
+    padding: 5px 0px;
+  }
+  .tooltip-inner {
+    font-size: 10.5px;
+    padding: 5px 10px;
+  }
+  .tooltip {
+    border-radius: 4px;
+  }
+  .filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    color: white;
+  }
+
+  .filter-container div {
+    margin: 10px;
+    width: 100%;
+    max-width: 180px;
+  }
+
+  .filter-container div select {
+    width: 100%;
+    max-width: 180px;
+  }
+  .filter-container #username-filter {
+    width: 100%;
+    max-width: 180px;
+  }
+  .white-content .filter-container {
+    color: black;
+  }
+  .white-content #show-filter-container {
+    color: black;
+  }
+
+  #show-filter-container {
+    display: inline;
+    margin: 10px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .filter-container {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: max-height 1s, opacity 1s, visibility 0.5s;
+  }
+  .filter-container.show {
+    max-height: 1000px;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn-primary {
+    /*padding: 10px 20px;*/
+    margin: 0 20px;
+  }
+  @media screen and (max-width: 500px) {
+    .filter-container div select,
+    .filter-container #username-filter {
+      font-size: 12px;
+    }
+    .btn-primary {
+      font-size: 12px;
+      padding: 8px 18px;
+      margin: 0 10px 0 0;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div id="notification-bar" class="hidden"></div>
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div id="show-filter-container">
+        Show Filters <i class="tim-icons icon-minimal-down"></i>
+      </div>
+      <div class="filter-container">
+        <div class="username-filter">
+          <label for="username-filter">Filter by Username:</label>
+          <input type="text" id="username-filter" />
+        </div>
+
+        <div>
+          <label for="user-type-filter">Filter by User Type:</label>
+          <select id="user-type-filter">
+            <option value="">All</option>
+            <option value="simple">Simple</option>
+            <option value="outsource">Outsource</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">List of Consumers</h4>
+          {% if user_role == 'admin' %}
+          <a href="/add_user.html">
+            <button type="" class="btn btn-fill btn-primary">
+              Add Consumer
+            </button>
+          </a>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table tablesorter">
+              <thead class="text-primary">
+                <tr>
+                  <th class="text-center">Username</th>
+                  <th class="text-center">Email</th>
+                  <th class="text-center">Full Name</th>
+                  <th class="text-center">User Type</th>
+                  <th class="text-center">Balance</th>
+                  {% if user_role == 'admin' %}
+                  <th class="text-center">Actions</th>
+                  {% endif %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for user in users %}
+                <tr>
+                  <td class="text-center username-column">
+                    {{ user.django_user.username }}
+                  </td>
+                  <td class="text-center">{{ user.email }}</td>
+                  <td class="text-center">{{ user.full_name }}</td>
+                  <td class="text-center user-type-column">
+                    {{ user.get_user_type_display }}
+                  </td>
+                  <td class="text-center">
+                    {% if user.user_type == 'outsource' %} {{ user.balance }}
+                    {%else %} -- {% endif %}
+                  </td>
+                  {% if user_role == 'admin' %}
+                  <td class="td-actions button-td">
+                    <a
+                      href="{% url 'update_user.html' user.user_id %}"
+                      class="btn btn-link"
+                      data-toggle="tooltip"
+                      title="Update Quarter"
+                    >
+                      <i class="tim-icons icon-pencil"></i>
+                    </a>
+                  </td>
+                  <td class="td-actions button-td">
+                    <a
+                      href="{% url 'delete-user' user.user_id %}"
+                      class="btn btn-link delete_user"
+                      data-toggle="tooltip"
+                      title="Delete User"
+                      onclick="return confirmDelete()"
+                    >
+                      <i class="tim-icons icon-trash-simple"></i>
+                    </a>
+                  </td>
+                  {%endif%}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ... -->
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE -->
+{% block javascripts %}
+<script>
+  function confirmDelete() {
+    return confirm("Are you sure you want to delete this user?");
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const notificationBar = document.getElementById("notification-bar");
+
+    function showNotification(status, message) {
+      notificationBar.textContent = message;
+      notificationBar.classList.add(status);
+      notificationBar.classList.remove("hidden");
+      setTimeout(function () {
+        hideNotification();
+      }, 3000);
+    }
+
+    function hideNotification() {
+      notificationBar.textContent = "";
+      notificationBar.classList.remove("success", "error");
+      notificationBar.classList.add("hidden");
+    }
+
+    const successMessage = "{{ success_message }}";
+    const errorMessage = "{{ error_message }}";
+
+    if (successMessage.trim() !== "") {
+      showNotification("success", successMessage.trim());
+    }
+
+    if (errorMessage.trim() !== "") {
+      showNotification("error", errorMessage.trim());
+    }
+  });
+
+  $(document).ready(function () {
+    // Function to handle table filtering
+    function filterTable() {
+      var username = $("#username-filter").val().trim();
+      var userType = $("#user-type-filter").val();
+
+      $(".table tbody tr").each(function () {
+        var row = $(this);
+        var usernameColumn = row
+          .find(".username-column")
+          .text()
+          .trim()
+          .toLowerCase();
+        var userTypeColumn = row
+          .find(".user-type-column")
+          .text()
+          .trim()
+          .toLowerCase();
+
+        var showRow =
+          (username === "" || usernameColumn === username) &&
+          (userType === "" || userTypeColumn === userType.toLowerCase());
+
+        if (showRow) {
+          row.show();
+        } else {
+          row.hide();
+        }
+      });
+    }
+
+    // Trigger filtering when any filter is changed
+    $("#username-filter, #user-type-filter").change(function () {
+      filterTable();
+    });
+
+    // Initial filtering on page load
+    filterTable();
+  });
+  const showFilterBtn = document.getElementById("show-filter-container");
+  const filterContainer = document.querySelector(".filter-container");
+  showFilterBtn.addEventListener("click", () => {
+    filterContainer.classList.toggle("show");
+    if (filterContainer.classList.contains("show")) {
+      showFilterBtn.innerHTML =
+        "Hide Filters <i class='tim-icons icon-minimal-up'></i>";
+    } else {
+      showFilterBtn.innerHTML =
+        "Show Filters <i class='tim-icons icon-minimal-down'></i>";
+    }
+  });
+</script>
+{% endblock javascripts %}

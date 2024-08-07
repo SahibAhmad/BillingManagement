@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Electricity Bill</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        background-color: #f4f4f4;
+      }
+
+      .container {
+        max-width: 700px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .logo {
+        text-align: center;
+      }
+
+      .logo img {
+        max-width: 80px;
+      }
+
+      h1 {
+        margin: 10px;
+        text-align: center;
+        color: #0066cc;
+      }
+
+      hr {
+        border: 1px solid #ccc;
+        margin: 20px 0;
+      }
+
+      .bill-data span {
+        width: 45%;
+        display: inline-block;
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      .billing-calc h2 {
+        margin-bottom: 10px;
+        color: #0066cc;
+      }
+
+      .calc-data span {
+        width: 45%;
+        display: inline-block;
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      .grand-total {
+        margin-top: 20px;
+        text-align: left;
+        font-weight: bold;
+        color: #0066cc;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 50px;
+      }
+
+      .notice {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        font-size: small;
+      }
+
+      .notice * {
+        margin: 0;
+      }
+
+      .info {
+        text-align: right;
+        font-size: small;
+        font-weight: bold;
+      }
+
+      .info p {
+        margin: 0;
+      }
+
+      .btn-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #downloadBtn {
+        background-color: #0066cc;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      #downloadBtn:hover {
+        background-color: #0052a3;
+      }
+      @media screen and (max-width: 800px) {
+        .container {
+          margin: 30px;
+        }
+        .bill-data span,
+        .calc-data span {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="logo">
+        <img
+          class="nitLogo"
+          src="{{ ASSETS_ROOT }}/img/nitsriLogo.png"
+          alt="Logo"
+        />
+      </div>
+      <h1 style="text-align: center">Electricity Bill</h1>
+      <hr />
+      <div class="bill-data">
+        {% if bill_type == "Metered" %}
+          <span>Bill Number: {{ bill.metered_bill_id }}</span>
+        {% elif bill_type == "Unmetered" %}
+          <span>Bill Number: {{ bill.unmetered_bill_id }}</span>
+        {% endif %}
+        <span>Quarter Type: {{ bill.quarter_type }}</span>
+        <span>Quarter Number: {{ bill.room_number }}</span>
+        <span>Consumer Name: {{ bill.full_name }}</span>
+
+        <span>Bill Date: {{ bill.issued_date }}</span>
+        <span>Bill Due Date: {{ bill.due_date }}</span>
+        <span>Bill Month: {{ bill.month }}</span>
+      </div>
+      <hr />
+      <div class="bill-data">
+
+        {% if bill_type == "Metered" %}
+        <span>Rate Code: {{ bill.meter_rate_name }}</span>
+        <span>Previous Reading: {{ bill.previous_reading }}</span>
+        <span>Current Reading: {{ bill.current_reading }}</span>
+        <span>Total Units Consumed: {{ bill.units_consumed }}</span>
+        {% elif bill_type == "Unmetered" %}
+        <span>Rate Code: {{ bill.flat_rate_name }}</span>
+        {% endif %}
+        <span>Sanctioned Load (KW): {{ bill.sanctioned_load }}</span>
+        
+        
+      </div>
+      <div class="billing-calc">
+        <h2>Billing Calculations</h2>
+        <hr />
+        <div class="calc-data">
+          <span>Opening Balance (Rs): {{ bill.opening_balance }}</span>
+          <span>Cost of Energy (Rs): {{ bill.energy_charges }}</span>
+          {% if bill_type == "Metered" %}
+          <span>Electricity Duty Charges (Rs): {{ bill.duty_charges }}</span>
+         {% endif %}
+
+          <span>Demand Charges (Rs): {{ bill.demand_charges }}</span>
+        </div>
+      </div>
+      <hr />
+      <div class="grand-total">Grand Total (Rs): {{ bill.total_bill }}</div>
+      <div class="footer">
+        <div class="notice">
+          <h3>NOTICE:</h3>
+          <p>A Bill should be paid within 30 days.</p>
+        </div>
+        <div class="info">
+          <p>Department of Electricity</p>
+          <p>NIT Srinagar</p>
+          <p>+91 9988776655</p>
+          <p><u>info@nitsri.ac.in</u></p>
+        </div>
+      </div>
+      <hr class="btn-line" />
+      <div class="btn-container">
+        <button id="downloadBtn">Download Bill PDF</button>
+      </div>
+    </div>
+    <script>
+      function downloadPDF() {
+        const downloadButton = document.getElementById("downloadBtn");
+        downloadButton.style.display = "none";
+        document.querySelector(".btn-line").style.display = "none";
+
+        window.print();
+
+        downloadButton.style.display = "block";
+        document.querySelector(".btn-line").style.display = "block";
+      }
+
+      const downloadButton = document.getElementById("downloadBtn");
+      downloadButton.addEventListener("click", downloadPDF);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,338 @@
+{% extends "layouts/base.html" %} {% block title %}Rates{% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+  .main-panel .content {
+    min-height: calc(100vh - 125px);
+  }
+  .navbar.navbar-absolute {
+    z-index: 100000;
+  }
+  .card-body i {
+    color: #9a9a9a;
+    font-size: 1.4em;
+  }
+
+  .card-body i:hover {
+    color: #575757;
+  }
+
+  .table > tbody > tr > .button-td,
+  .white-content .table > tbody > tr > .button-td {
+    width: 4rem;
+    padding: 5px 0px;
+  }
+
+  .tooltip-inner {
+    font-size: 10.5px;
+    padding: 5px 10px;
+  }
+
+  .tooltip {
+    border-radius: 4px;
+  }
+
+  #notification-bar {
+    font-size: large;
+    font-weight: bolder;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    z-index: 9999;
+  }
+
+  .success {
+    background-color: #4caf50;
+  }
+
+  .error {
+    background-color: #f44336;
+  }
+
+  .filter-container {
+    margin-bottom: 10px;
+    color: white;
+  }
+
+  .white-content .filter-container {
+    color: black;
+  }
+
+  .filter-container label {
+    margin-left: 1rem;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    /*padding: 10px 20px;*/
+    margin: 0 20px;
+  }
+  .footer {
+    padding: 0;
+  }
+  .footer .nav {
+    padding-left: 0;
+  }
+  .footer .copyright {
+    padding-right: 0;
+  }
+  @media screen and (max-width: 500px) {
+    .filter-container {
+      display: flex;
+      flex-direction: column;
+      max-width: fit-content;
+    }
+
+    .filter-container select {
+      margin-bottom: 0.5rem;
+    }
+
+    .filter-container label {
+      margin-left: 0;
+    }
+    .btn-primary {
+      font-size: 12px;
+      padding: 8px 18px;
+      margin: 0 10px 0 0;
+    }
+  }
+  @media screen and (max-width: 385px) {
+    .card-header {
+      align-items: start;
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div id="notification-bar" class="hidden"></div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="content">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">List of Meter Rates</h4>
+                {% if user_role == 'admin' %}
+                <a href="/create_meter_rate">
+                  <button type="" class="btn btn-fill btn-primary">
+                    Add Meter Rate
+                  </button>
+                </a>
+                {% endif %}
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table tablesorter" id="">
+                    <thead class="text-primary">
+                      <tr>
+                        <th class="text-center">Rate Name</th>
+                        {% if user_role == 'admin' %}
+                        <th class="text-center">Delete</th>
+                        {% endif %}
+                        <th class="text-center">Fixed Charges (Rs/kW)</th>
+                        <th class="text-center">Electricity Duty</th>
+                        <th class="text-center">From</th>
+                        <th class="text-center">To</th>
+                        <th class="text-center">Rate (Rs/kWh)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for rate in meter_rates %}
+                      <tr>
+                        <td
+                          class="text-center"
+                          rowspan="{{ rate.rates|length|add:1 }}"
+                        >
+                          {{ rate.name }}
+                        </td>
+                        {% if user_role == 'admin' %}
+                        <td
+                          class="text-center"
+                          rowspan="{{ rate.rates|length|add:1 }}"
+                        >
+                        
+                          <form action="{% url 'read_rates' %}" method="POST">
+                            {% csrf_token %}
+                            <input
+                              type="hidden"
+                              name="action"
+                              value="mr-delete"
+                            />
+                            <input
+                              type="hidden"
+                              name="id"
+                              value="{{ rate.id }}"
+                            />
+
+                            <input
+                              type="submit"
+                              class="btn-danger"
+                              value="Delete"
+                            />
+                          </form>
+                        </td>
+                        {% endif %}
+                        <td
+                          class="text-center"
+                          rowspan="{{ rate.rates|length|add:1 }}"
+                        >
+                          {{ rate.fixed_charges }}
+                        </td>
+                        <td
+                          class="text-center"
+                          rowspan="{{ rate.rates|length|add:1 }}"
+                        >
+                          {{ rate.electricity_duty }}
+                        </td>
+                      </tr>
+                      {% for x in rate.rates %}
+                      <tr>
+                        <td class="text-center">{{ x.from }}</td>
+                        <td class="text-center">{{ x.to }}</td>
+                        <td class="text-center">{{ x.rate }}</td>
+                      </tr>
+                      {% endfor %} {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">List of Flat Rates</h4>
+                {% if user_role == 'admin' %}
+                <a href="/create_flat_rate">
+                  <button type="" class="btn btn-fill btn-primary">
+                    Add Flat Rate
+                  </button>
+                </a>
+                {% endif %}
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table tablesorter" id="">
+                    <thead class="text-primary">
+                      <tr>
+                        <th class="text-center">Rate Name</th>
+                        {% if user_role == 'admin' %}
+                        <th class="text-center">Delete</th>
+                        {% endif %}
+                        <th class="text-center">From</th>
+                        <th class="text-center">To</th>
+                        <th class="text-center">Rate (Rs/kWh)</th>
+                        <th class="text-center">Every Additional (kW)</th>
+                        <th class="text-center">Additional Rate (Rs/month)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for rate in flat_rates %}
+                      <tr>
+                        <td
+                          class="text-center"
+                          rowspan="{{ rate.rates|length|add:1 }}"
+                        >
+                          {{ rate.name }}
+                        </td>
+                        {% if user_role == 'admin' %}
+                        <td
+                          class="text-center"
+                          rowspan="{{ rate.rates|length|add:1 }}"
+                        >
+                          <form action="{% url 'read_rates' %}" method="POST">
+                            {% csrf_token %}
+                            <input
+                              type="hidden"
+                              name="action"
+                              value="fr-delete"
+                            />
+                            <input
+                              type="hidden"
+                              name="id"
+                              value="{{ rate.id }}"
+                            />
+                            <input
+                              type="submit"
+                              class="btn-danger"
+                              value="Delete"
+                            />
+                          </form>
+                        </td>
+                        {% endif %}
+                      </tr>
+                      {% for x in rate.rates %}
+                      <tr>
+                        <td class="text-center">{{ x.from }}</td>
+                        <td class="text-center">{{ x.to }}</td>
+                        <td class="text-center">{{ x.rate }}</td>
+                        <td class="text-center">{{ x.additional }}</td>
+                        <td class="text-center">{{ x.additional_rate }}</td>
+                      </tr>
+                      {% endfor %} {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% endblock content %}
+
+      <!-- Specific Page JS goes HERE -->
+      {% block javascripts %}
+      <script>
+        $(document).ready(function () {
+          $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+          const notificationBar = document.getElementById("notification-bar");
+
+          function showNotification(status, message) {
+            notificationBar.textContent = message;
+            notificationBar.classList.add(status);
+            notificationBar.classList.remove("hidden");
+            setTimeout(function () {
+              hideNotification();
+            }, 3000);
+          }
+
+          function hideNotification() {
+            notificationBar.textContent = "";
+            notificationBar.classList.remove("success", "error");
+            notificationBar.classList.add("hidden");
+          }
+
+          const successMessage = "{{ success_message }}";
+          const errorMessage = "{{ error_message }}";
+
+          if (successMessage.trim() !== "") {
+            showNotification("success", successMessage.trim());
+          }
+
+          if (errorMessage.trim() !== "") {
+            showNotification("error", errorMessage.trim());
+          }
+        });
+      </script>
+      {% endblock %}
+    </div>
+  </div>
+</div>

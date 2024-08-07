@@ -1,0 +1,361 @@
+{% extends "layouts/base.html" %} {% block title %}Generate Bill {% endblock %}
+
+<!-- Specific Page CSS goes HERE -->
+{% block stylesheets %}
+<style>
+  .main-panel > .content {
+    padding: 0;
+  }
+  .container {
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .row {
+    margin: 0;
+  }
+  .offset-md-3 {
+    margin-left: 0;
+  }
+  .card {
+    min-height: calc(100vh - 270px);
+    left: 300px;
+    min-width: calc(100vw - 400px);
+    margin-block: 0;
+  }
+  .card * {
+    font-size: large;
+  }
+  .card .title {
+    font-size: 2rem;
+  }
+  .card label {
+    font-size: 1rem;
+  }
+  .form-control {
+    height: calc(3rem + 2px);
+  }
+  select option {
+    color: black;
+  }
+  select option:checked {
+    color: rgb(0, 228, 0);
+  }
+
+  #notification-bar {
+    font-size: large;
+    font-weight: bolder;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    z-index: 9999;
+  }
+  .hidden {
+    display: none;
+  }
+  .success {
+    background-color: #4caf50;
+  }
+  .error {
+    background-color: #f44336;
+  }
+
+  .form-control[disabled],
+  .form-control[readonly],
+  fieldset[disabled] .form-control {
+    color: white;
+  }
+
+  .white-content .form-control[readonly],
+  .white-content fieldset[disabled] .form-control {
+    color: black;
+  }
+
+  @media screen and (max-width: 992px) {
+    .card {
+      left: 200px;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    .card {
+      left: 0;
+    }
+  }
+  @media screen and (max-width: 576px) {
+    .card * {
+      font-size: medium;
+    }
+    .card .title {
+      font-size: 1.6rem;
+    }
+    .card label {
+      font-size: 0.8rem;
+    }
+    .form-control {
+      height: calc(2.7rem + 2px);
+    }
+  }
+</style>
+
+{% endblock %} {% block content %}
+<div id="notification-bar" class="hidden"></div>
+
+<div class="content">
+  <div class="container">
+    <div class="row pt-5">
+      <div class="col-md-6 mt-5 offset-md-3 pt-5 mt-5">
+        <div class="card">
+          <div class="card-header text-center py-4">
+            <h4 class="title">Generate Bill</h4>
+          </div>
+
+          <form role="form" method="post" action="{% url 'calculate-bill' %}">
+            {% csrf_token %}
+            <div class="card-body px-5 py-3">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="id_month_selection">Select a Month</label>
+                  <select
+                    class="form-control"
+                    id="id_month_selection"
+                    name="selected_month"
+                  >
+                    <option value="" disabled selected>Select Month</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                  </select>
+                  <span class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                  <label for="id_selected_year">Select a Year</label>
+                  <div class="input-group">
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="id_selected_year"
+                      name="selected_year"
+                      value=""
+                      min="2023"
+                      readonly
+                    />
+                    <span class="input-group-btn">
+                      <button
+                        type="button"
+                        class="btn btn-default"
+                        onclick="decreaseYear()"
+                      >
+                        -
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-default"
+                        onclick="increaseYear()"
+                      >
+                        +
+                      </button>
+                    </span>
+                  </div>
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="id_bill_type">Select Bill Type</label>
+                  <select
+                    class="form-control"
+                    id="id_bill_type"
+                    name="bill_type"
+                    onchange="toggleFields()"
+                  >
+                    <option value="quarter-bill">Quarter Bill</option>
+                    <option value="bulk-bill">Bulk Bill</option>
+                  </select>
+                  <span class="text-danger"></span>
+                </div>
+                <!-- Adding Bill Issue Date here -->
+                <div class="form-group col-md-6">
+                  <label for="id_issue_date">Issue Date</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="id_issue_date"
+                    name="issue_date"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+
+                <script>
+                  // Get the current date in the format yyyy-mm-dd
+                  const currentDate = new Date().toISOString().slice(0, 10);
+                  // Set the default value of the input field to the current date
+                  document.getElementById("id_issue_date").value = currentDate;
+                </script>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6" id="quarterNumberRow">
+                  <label for="id_room_id">Quarter Number</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="id_room_id"
+                    name="room_number"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+                <!-- Adding Bill Due Date here -->
+                <div class="form-group col-md-6">
+                  <label for="id_due_date">Due Date</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="id_due_date"
+                    name="due_date"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+
+                <script>
+                  // Get the current date
+                  // const current = new Date();
+                  // Calculate the date after 30 days
+                  const dueDate = new Date(currentDate);
+                  dueDate.setDate(dueDate.getDate() + 30);
+                  // Format the due date to "yyyy-mm-dd"
+                  const formattedDueDate = dueDate.toISOString().slice(0, 10);
+                  // Set the default value of the input field to the calculated due date
+                  document.getElementById("id_due_date").value =
+                    formattedDueDate;
+                </script>
+              </div>
+
+              <div class="form-row" id="quarterTypeRow">
+                <div class="form-group col-md-6">
+                  <label for="id_access">Quarter Type</label>
+                  <select
+                    class="form-control"
+                    id="id_access"
+                    name="quarter_type"
+                  >
+                    {% for value in quarterType %}
+                    <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                  </select>
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-center" id="quarter-bill-btn">
+              <button type="submit" class="btn btn-fill btn-primary">
+                Generate Quarter Bill
+              </button>
+            </div>
+            <div
+              class="card-footer text-center"
+              id="bulk-bill-btn"
+              style="display: none"
+            >
+              <button type="submit" class="btn btn-fill btn-primary">
+                Generate Bulk Bill
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE -->
+{% block javascripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const yearInput = document.getElementById("id_selected_year");
+    const currentYear = new Date().getFullYear();
+    yearInput.value = currentYear;
+  });
+  function increaseYear() {
+    const yearInput = document.getElementById("id_selected_year");
+    let currentYear = parseInt(yearInput.value, 10);
+    const maximumYear = new Date().getFullYear();
+    if (currentYear < maximumYear) {
+      yearInput.value = currentYear + 1;
+    }
+  }
+
+  function decreaseYear() {
+    const yearInput = document.getElementById("id_selected_year");
+    let currentYear = parseInt(yearInput.value, 10);
+    if (currentYear > 2023) {
+      yearInput.value = currentYear - 1;
+    }
+  }
+
+  function toggleFields() {
+    const userSelect = document.getElementById("id_bill_type");
+    const quarterNumberRow = document.getElementById("quarterNumberRow");
+    const quarterTypeRow = document.getElementById("quarterTypeRow");
+    const quarterBillBtn = document.getElementById("quarter-bill-btn");
+    const bulkBillBtn = document.getElementById("bulk-bill-btn");
+
+    if (userSelect.value === "quarter-bill") {
+      quarterNumberRow.style.display = "block";
+      quarterTypeRow.style.display = "block";
+      quarterBillBtn.style.display = "block";
+      bulkBillBtn.style.display = "none";
+    } else if (userSelect.value === "bulk-bill") {
+      quarterNumberRow.style.display = "none";
+      quarterTypeRow.style.display = "none";
+      quarterBillBtn.style.display = "none";
+      bulkBillBtn.style.display = "block";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const notificationBar = document.getElementById("notification-bar");
+
+    function showNotification(status, message) {
+      notificationBar.textContent = message;
+      notificationBar.classList.add(status);
+      notificationBar.classList.remove("hidden");
+      setTimeout(function () {
+        hideNotification();
+      }, 3000);
+    }
+
+    function hideNotification() {
+      notificationBar.textContent = "";
+      notificationBar.classList.remove("success", "error");
+      notificationBar.classList.add("hidden");
+    }
+
+    const successMessage = "{{ success_message }}";
+    const errorMessage = "{{ error_message }}";
+
+    if (successMessage.trim() !== "") {
+      showNotification("success", successMessage.trim());
+    }
+
+    if (errorMessage.trim() !== "") {
+      showNotification("error", errorMessage.trim());
+    }
+  });
+</script>
+
+{% endblock javascripts %}

@@ -1,0 +1,279 @@
+{% block stylesheets %}
+<style>
+  .sidebar .sidebar-wrapper::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar .sidebar-wrapper::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+  }
+
+  .sidebar .sidebar-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: #646464;
+  }
+
+  .sidebar .sidebar-wrapper::-webkit-scrollbar-track {
+    background-color: #333;
+    border-radius: 10px;
+  }
+  .white-content .sidebar .sidebar-wrapper::-webkit-scrollbar-thumb {
+    background-color: rgb(180, 178, 178);
+    border-radius: 10px;
+  }
+
+  .white-content .sidebar .sidebar-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(111, 110, 110);
+  }
+
+  .white-content .sidebar .sidebar-wrapper::-webkit-scrollbar-track {
+    background-color: rgb(223, 223, 223);
+    border-radius: 10px;
+  }
+
+  .sidebar {
+    background: none;
+    border-radius: 1rem;
+  }
+  .sidebar .sidebar-wrapper,
+  .off-canvas-sidebar .sidebar-wrapper {
+    background-color: rgb(40, 39, 39);
+    border-radius: 1rem;
+  }
+  .white-content .sidebar .sidebar-wrapper,
+  .off-canvas-sidebar .sidebar-wrapper {
+    background-color: rgb(255, 255, 255);
+  }
+  .white-content .sidebar p,
+  .white-content .sidebar i {
+    color: #333;
+  }
+  .white-content .sidebar .nav li.active > a:not([data-toggle="collapse"]) p,
+  .white-content .sidebar .nav li.active > a:not([data-toggle="collapse"]) i {
+    color: #333;
+  }
+
+  .white-content .sidebar .nav li:hover:not(.active) > a p,
+  .white-content .sidebar .nav li:hover:not(.active) > a i,
+  .white-content .sidebar .nav li:focus:not(.active) > a p,
+  .white-content .sidebar .nav li:focus:not(.active) > a i,
+  .white-content .off-canvas-sidebar .nav li:hover:not(.active) > a p,
+  .white-content .off-canvas-sidebar .nav li:hover:not(.active) > a i,
+  .white-content .off-canvas-sidebar .nav li:focus:not(.active) > a p,
+  .white-content .off-canvas-sidebar .nav li:focus:not(.active) > a i {
+    color: black;
+  }
+
+  .sidebar p {
+    font-weight: 700;
+  }
+  .white-content .active {
+    color: black;
+  }
+  .white-content
+    .sidebar
+    .nav
+    li.active
+    > a:not([data-toggle="collapse"]):before,
+  .white-content
+    .off-canvas-sidebar
+    .nav
+    li.active
+    > a:not([data-toggle="collapse"]):before {
+    background: black;
+  }
+
+  .white-content .sidebar .logo .simple-text,
+  .white-content .off-canvas-sidebar .logo .simple-text {
+    color: black;
+  }
+  .sidebar .logo a.logo-mini-dark,
+  .off-canvas-sidebar .logo a.logo-mini-dark {
+    width: 40px;
+    opacity: 1;
+    float: left;
+    text-align: center;
+    margin-left: 10px;
+    margin-right: 12px;
+  }
+  .white-content .sidebar .logo:after {
+    background-color: #333;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="sidebar">
+  <div class="sidebar-wrapper">
+    <div class="logo">
+      <a href="/" class="simple-text logo-mini-dark">
+        <img
+          class="dark-mode-logo"
+          src="{{ ASSETS_ROOT }}/img/nitLogoWhite.png"
+          alt="Logo"
+        />
+      </a>
+      <a href="/" class="simple-text logo-mini">
+        <img
+          class="white-mode-logo"
+          src="{{ ASSETS_ROOT }}/img/nitsriLogo.png"
+          alt="Logo"
+        />
+      </a>
+      <a href="/" class="simple-text logo-normal"> NIT Srinagar </a>
+    </div>
+    <ul class="nav">
+      {% if user_role == 'admin' or user_role == 'operator' %}
+      <li class="{% if 'index' in segment %} active {% endif %}">
+        <a href="/">
+          <i class="tim-icons icon-chart-pie-36"></i>
+          <p>Dashboard</p>
+        </a>
+      </li>
+      {% endif %}
+      <!--{% if user_role == 'admin' %}
+      <li class="{% if 'createRoom' in segment %} active {% endif %}">
+        <a href="/create_room.html">
+          <i class="tim-icons icon-bank"></i>
+          <p>Create Quarter</p>
+        </a>
+      </li>
+      {% endif %} -->
+      {% if user_role == 'admin' or user_role == 'operator' %}
+      <li class="{% if 'readRooms' in segment %} active {% endif %}">
+        <a href="/read_rooms.html">
+          <i class="tim-icons icon-bank"></i>
+          <p>Quarters</p>
+        </a>
+      </li>
+      {% endif %} {% if user_role == 'admin' or user_role == 'operator' %}
+      <li class="{% if 'readRates' in segment %} active {% endif %}">
+        <a href="/read_rates">
+          <i class="tim-icons icon-bank"></i>
+          <p>Rates</p>
+        </a>
+      </li>
+      {% endif %} {% if user_role == 'admin' or user_role == 'operator' %}
+      <li class="{% if 'readUsers' in segment %} active {% endif %}">
+        <a href="/read_users.html">
+          <i class="tim-icons icon-bank"></i>
+          <p>Consumers</p>
+        </a>
+      </li>
+
+      {% endif %} {% if user_role == 'admin' or user_role == 'operator' %}
+      <li class="{% if 'details' in segment %} active {% endif %}">
+        <a href="/details.html">
+          <i class="tim-icons icon-single-02"></i>
+          <p>Readings</p>
+        </a>
+      </li>
+      {% endif %}
+      <!--{% if user_role == 'admin' %}
+      <li class="{% if 'addUser' in segment %} active {% endif %}">
+        <a href="/add_user.html">
+          <i class="tim-icons icon-atom"></i>
+          <p>Add Consumer</p>
+        </a>
+      </li>
+      {% endif %}-->
+      <!--{% if user_role == 'admin' %}
+      <li class="{% if 'createMeterRate' in segment %} active {% endif %}">
+        <a href="/create_meter_rate">
+          <i class="tim-icons icon-pin"></i>
+          <p>Create Meter Rate</p>
+        </a>
+      </li>
+      {% endif %} {% if user_role == 'admin' %}
+      <li class="{% if 'createFlatRate' in segment %} active {% endif %}">
+        <a href="/create_flat_rate">
+          <i class="tim-icons icon-bell-55"></i>
+          <p>Create Flat Rate</p>
+        </a>
+      </li>
+      {% endif %} -->
+      <!--{% if user_role == 'admin' or user_role == 'operator' %}
+      <li class="{% if 'setReadings' in segment %} active {% endif %}">
+        <a href="/set_readings.html">
+          <i class="tim-icons icon-settings"></i>
+          <p>Set Reading</p>
+        </a>
+      </li>
+      {% endif %}-->
+
+      <!--<li class="{% if 'user' in segment %} active {% endif %}">
+        <a href="/user.html">
+          <i class="tim-icons icon-single-02"></i>
+          <p>User Profile</p>
+        </a>
+      </li>-->
+      <!--<li class="{% if 'tables' in segment %} active {% endif %}">
+        <a href="/tables.html">
+          <i class="tim-icons icon-puzzle-10"></i>
+          <p>Table List</p>
+        </a>
+      </li>-->
+      <!--<li class="{% if 'typography' in segment %} active {% endif %}">
+        <a href="/typography.html">
+          <i class="tim-icons icon-align-center"></i>
+          <p>Typography</p>
+        </a>
+      </li>-->
+      <!--<li>
+        <a href="/rtl.html">
+          <i class="tim-icons icon-world"></i>
+          <p>RTL Support</p>
+        </a>
+      </li>-->
+      <!--{% if user_role == 'admin' or user_role == 'operator' %}
+      <li class="{% if 'fetchBill' in segment %} active {% endif %}">
+        <a href="/fetch_bill.html">
+          <i class="tim-icons icon-paper"></i>
+          <p>Fetch Bill</p>
+        </a>
+      </li>
+      {% endif %} -->
+      {% if user_role == 'admin' or user_role == 'operator' %}
+      <li class="{% if 'readBill' in segment %} active {% endif %}">
+        <a href="/read_bills.html">
+          <i class="tim-icons icon-paper"></i>
+          <p>Bills</p>
+        </a>
+      </li>
+      {% endif %}
+
+      <li>
+        <a href="{% url 'logoutuser' %}">
+          <i class="tim-icons icon-button-power"></i>
+          <p>Logout</p>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+{% endblock content %}
+<!-- Specific Page JS goes HERE -->
+{% block javascripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const whiteContentImg = document.querySelector(".logo-mini");
+    const darkContentImg = document.querySelector(".logo-mini-dark");
+    const body = document.getElementsByTagName("body")[0];
+
+    function toggleTheme() {
+      if (body.classList.contains("white-content")) {
+        whiteContentImg.style.display = "inline";
+        darkContentImg.style.display = "none";
+      } else {
+        whiteContentImg.style.display = "none";
+        darkContentImg.style.display = "inline";
+      }
+    }
+
+    toggleTheme();
+
+    const observer = new MutationObserver(toggleTheme);
+    const config = { attributes: true, attributeFilter: ["class"] };
+    observer.observe(body, config);
+  });
+</script>
+
+{% endblock javascripts %}

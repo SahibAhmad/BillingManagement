@@ -1,0 +1,269 @@
+{% extends "layouts/base.html" %} {% block title %}Add Quarter{% endblock %}
+
+<!-- Specific Page CSS goes HERE -->
+{% block stylesheets %}
+<style>
+  .main-panel > .content {
+    padding: 0;
+  }
+  .container {
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .row {
+    margin: 0;
+  }
+  .offset-md-3 {
+    margin-left: 0;
+  }
+  .card {
+    min-height: calc(100vh - 270px);
+    left: 300px;
+    min-width: calc(100vw - 400px);
+    margin-block: 0;
+  }
+  .card * {
+    font-size: large;
+  }
+  .card .title {
+    font-size: 2rem;
+  }
+  .card label {
+    font-size: 1rem;
+  }
+  .form-control {
+    height: calc(3rem + 2px);
+  }
+  select option {
+    color: black;
+  }
+  select option:checked {
+    color: rgb(0, 228, 0);
+  }
+
+  #notification-bar {
+    font-size: large;
+    font-weight: bolder;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    z-index: 9999;
+  }
+  .hidden {
+    display: none;
+  }
+  .success {
+    background-color: #4caf50;
+  }
+  .error {
+    background-color: #f44336;
+  }
+
+  @media screen and (max-width: 992px) {
+    .card {
+      left: 200px;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    .card {
+      left: 0;
+    }
+  }
+  @media screen and (max-width: 576px) {
+    .card * {
+      font-size: medium;
+    }
+    .card .title {
+      font-size: 1.6rem;
+    }
+    .card label {
+      font-size: 0.8rem;
+    }
+    .form-control {
+      height: calc(2.7rem + 2px);
+    }
+  }
+</style>
+
+{% endblock %} {% block content %}
+<div id="notification-bar" class="hidden"></div>
+
+<div class="content">
+  <div class="container">
+    <div class="row pt-5">
+      <div class="col-md-6 mt-5 offset-md-3 pt-5 mt-5">
+        <div class="card">
+          <div class="card-header text-center py-4">
+            <h4 class="title">Add Quarter</h4>
+          </div>
+
+          <form role="form" method="post" action="{% url 'create-room' %}">
+            {% csrf_token %}
+            <div class="card-body px-5 py-3">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="id_room_id">Quarter Number</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="id_room_id"
+                    name="room_number"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                  <label for="id_access">Quarter Type</label>
+                  <select
+                    class="form-control"
+                    id="id_access"
+                    name="quarter_type"
+                  >
+                    {% for value in quarterType %}
+                    <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                  </select>
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="id_user_type">Is Metered</label>
+                  <select
+                    class="form-control"
+                    id="id_user_type"
+                    name="room_type"
+                    onchange="toggleFields()"
+                  >
+                    <option value="metered">Metered</option>
+                    <option value="un-metered">Un-metered</option>
+                  </select>
+                  <span class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="id_sanctioned_load">Sanctioned Load</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="id_sanctioned_load"
+                    name="sanctioned_load"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+
+              <div class="form-row" id="initialReadingRow">
+                <div class="form-group col-md-6">
+                  <label for="id_room_id">Initial Reading</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="id_room_id"
+                    name="initial_reading"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+
+              <div class="form-row" id="meterRateRow">
+                <div class="form-group col-md-6">
+                  <label for="id_meter_rate">Meter Rate</label>
+                  <select
+                    class="form-control"
+                    id="id_meter_rate"
+                    name="meter_rate"
+                  >
+                    {% for value in meterRate %}
+                    <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                  </select>
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+
+              <div class="form-row" id="flatRateRow" style="display: none">
+                <div class="form-group col-md-6">
+                  <label for="id_flat_rate">Flat Rate</label>
+                  <select
+                    class="form-control"
+                    id="id_flat_rate"
+                    name="flat_rate"
+                  >
+                    {% for value in flatRate %}
+                    <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                  </select>
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-center">
+              <button type="submit" class="btn btn-fill btn-primary">
+                Add Quarter
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE -->
+{% block javascripts %}
+<script>
+  function toggleFields() {
+    const userSelect = document.getElementById("id_user_type");
+    const initialReadingRow = document.getElementById("initialReadingRow");
+    const meterRateRow = document.getElementById("meterRateRow");
+    const flatRateRow = document.getElementById("flatRateRow");
+
+    if (userSelect.value === "metered") {
+      initialReadingRow.style.display = "block";
+      meterRateRow.style.display = "block";
+      flatRateRow.style.display = "none";
+    } else if (userSelect.value === "un-metered") {
+      initialReadingRow.style.display = "none";
+      meterRateRow.style.display = "none";
+      flatRateRow.style.display = "block";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const notificationBar = document.getElementById("notification-bar");
+
+    function showNotification(status, message) {
+      notificationBar.textContent = message;
+      notificationBar.classList.add(status);
+      notificationBar.classList.remove("hidden");
+      setTimeout(function () {
+        hideNotification();
+      }, 3000);
+    }
+
+    function hideNotification() {
+      notificationBar.textContent = "";
+      notificationBar.classList.remove("success", "error");
+      notificationBar.classList.add("hidden");
+    }
+
+    const successMessage = "{{ success_message }}";
+    const errorMessage = "{{ error_message }}";
+
+    if (successMessage.trim() !== "") {
+      showNotification("success", successMessage.trim());
+    }
+
+    if (errorMessage.trim() !== "") {
+      showNotification("error", errorMessage.trim());
+    }
+  });
+</script>
+
+{% endblock javascripts %}

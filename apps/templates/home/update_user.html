@@ -1,0 +1,288 @@
+{% extends "layouts/base.html" %} {% block title %}Update Consumer{% endblock %}
+
+<!-- Specific Page CSS goes HERE -->
+{% block stylesheets %}
+<style>
+  .main-panel > .content {
+    padding: 0;
+  }
+  .container {
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .row {
+    margin: 0;
+  }
+  .offset-md-3 {
+    margin-left: 0;
+  }
+  .card {
+    min-height: calc(100vh - 270px);
+    left: 300px;
+    min-width: calc(100vw - 400px);
+    margin-block: 0;
+  }
+  .card * {
+    font-size: large;
+  }
+  .card .title {
+    font-size: 2rem;
+  }
+  .card label {
+    font-size: 1rem;
+  }
+  .form-control {
+    height: calc(3rem + 2px);
+  }
+  select option {
+    color: black;
+  }
+  select option:checked {
+    color: rgb(0, 228, 0);
+  }
+
+  #notification-bar {
+    font-size: large;
+    font-weight: bolder;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    z-index: 9999;
+  }
+  .hidden {
+    display: none;
+  }
+  .success {
+    background-color: #4caf50;
+  }
+  .error {
+    background-color: #f44336;
+  }
+
+  @media screen and (max-width: 992px) {
+    .card {
+      left: 200px;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    .card {
+      left: 0;
+    }
+  }
+  @media screen and (max-width: 576px) {
+    .card * {
+      font-size: medium;
+    }
+    .card .title {
+      font-size: 1.6rem;
+    }
+    .card label {
+      font-size: 0.8rem;
+    }
+    .form-control {
+      height: calc(2.7rem + 2px);
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div id="notification-bar" class="hidden"></div>
+
+<div class="content">
+  <div class="container">
+    <div class="row pt-5">
+      <div class="col-md-6 mt-5 offset-md-3 pt-5 mt-5">
+        <div class="card">
+          <div class="card-header text-center py-4">
+            <h4 class="title">Update Consumer</h4>
+          </div>
+
+          <form role="form" method="post" action="{% url 'update-user' %}">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ user.user_id }}">
+            <div class="card-body px-5 py-3">
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="id_username">Username</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="id_username"
+                    name="username"
+                    value="{{ user_auth.username }}"
+                />
+                  <span class="text-danger"></span>
+                </div>
+          
+                <div class="form-group col-md-6">
+                  <label for="email">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="id_email"
+                    name="email"
+                    value="{{ user.email }}"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="id_fullname">Full Name</label>
+                  
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="id_fullname"
+                    name="full_name"
+                    value="{{ user.full_name }}"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                  <label for="id_department_id">Department Name</label>
+                  <select class="form-control" id="id_department_name" name="department_name">
+                    {% for department in departmentType %}
+                      <option value="{{ department }}"
+                              {% if department.department_name == department_name %}selected{% endif %}>
+                        {{ department.department_name }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+                    
+                    <div class="form-row">
+                      <div class="form-group col-md-6">
+                        <label for="id_room_id">Quarter Number</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="id_room_id"
+                          name="room_id"
+                          {% if room_number %}
+                            value="{{ room_number }}"
+                            {% else %}
+                            value="-1"
+                          {% endif %}
+                        />
+
+                        <span class="text-danger"></span>
+                      </div>
+                    
+                      <div class="form-group col-md-6">
+                        <label for="id_access">Quarter Type</label>
+                        <select class="form-control" id="id_access" name="id_access">
+                          <option value="select_quarter">Select Quarter</option>
+                          {% for quartertype in quarterType %}
+                            {% if quarter_name and quarter_name == quartertype.quarter_name %}
+                              <option value="{{ quartertype.quarter_name }}" selected>{{ quartertype.quarter_name }}</option>
+                            {% else %}
+                              <option value="{{ quartertype.quarter_name }}">{{ quartertype.quarter_name }}</option>
+                            {% endif %}
+                          {% endfor %}
+                        </select>
+                        
+                        <span class="text-danger"></span>
+                      </div>
+                    </div> 
+                  
+
+              <div class="form-row">  
+                <div class="form-group col-md-6">
+                  <label for="id_user_type">User Type</label>
+                  <select
+                    class="form-control"
+                    id="id_user_type"
+                    name="user_type"
+                  >
+                  {% for user_type in user.TYPE_IN_USER_TYPE_CHOICES %}
+                  <option value="{{ user_type.0 }}" {% if user.user_type == user_type.0 %}selected{% endif %}>
+                    {{ user_type.1 }}
+                  </option>
+                {% endfor %}
+                  </select>
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+          
+              
+              {% if user.user_type == 'outsource' %}
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="id_balance">Balance</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="id_balance"
+                    name="balance"
+                    value="{{ user.balance }}"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+          
+              </div>
+              {% endif %}
+            </div>
+            <div class="card-footer text-center">
+              <button action="{url 'update-user' }" type="submit" class="btn btn-fill btn-primary">
+                Update Consumer 
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+
+{% block javascripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const notificationBar = document.getElementById("notification-bar");
+
+    function showNotification(status, message) {
+      notificationBar.textContent = message;
+      notificationBar.classList.add(status);
+      notificationBar.classList.remove("hidden");
+      setTimeout(function () {
+        hideNotification();
+      }, 3000);
+    }
+
+    function hideNotification() {
+      notificationBar.textContent = "";
+      notificationBar.classList.remove("success", "error");
+      notificationBar.classList.add("hidden");
+    }
+
+    const successMessage = "{{ success_message }}";
+    const errorMessage = "{{ error_message }}";
+
+    if (successMessage.trim() !== "") {
+      showNotification("success", successMessage.trim());
+    }
+
+    if (errorMessage.trim() !== "") {
+      showNotification("error", errorMessage.trim());
+    }
+  });
+</script>
+
+{% endblock javascripts %}
+
+
+
+
+

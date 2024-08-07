@@ -1,0 +1,356 @@
+{% extends "layouts/base.html" %} {% block title %}Bills{% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+  .main-panel .content {
+    min-height: calc(100vh - 155px);
+  }
+
+  .navbar.navbar-absolute {
+    z-index: 100000;
+  }
+
+  .card-body i {
+    color: #9a9a9a;
+    font-size: 1.4em;
+    transition: 0.3s;
+  }
+  .card-body i:hover {
+    color: #575757;
+  }
+  .table > tbody > tr > .button-td,
+  .white-content .table > tbody > tr > .button-td {
+    width: 4rem;
+    padding: 5px 0px;
+  }
+  .tooltip-inner {
+    font-size: 10.5px;
+    padding: 5px 10px;
+  }
+  .tooltip {
+    border-radius: 4px;
+  }
+
+  .filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    color: white;
+  }
+
+  .filter-container div {
+    margin: 10px;
+    width: 100%;
+    max-width: 180px;
+  }
+
+  .filter-container div select {
+    width: 100%;
+    max-width: 180px;
+  }
+  .filter-container #quarter-number-filter {
+    width: 100%;
+    max-width: 180px;
+  }
+  .white-content .filter-container {
+    color: black;
+  }
+  .white-content #show-filter-container {
+    color: black;
+  }
+
+  #show-filter-container {
+    display: inline;
+    margin: 10px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .filter-container {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: max-height 1s, opacity 1s, visibility 0.5s;
+  }
+  .filter-container.show {
+    max-height: 1000px;
+    opacity: 1;
+    visibility: visible;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn-primary {
+    margin: 0 15px;
+    font-size: 15px;
+  }
+  .footer {
+    padding: 0;
+  }
+  .footer .nav {
+    padding-left: 0;
+  }
+  .footer .copyright {
+    padding-right: 0;
+  }
+  table > tbody > tr > .button-td,
+  .table > tbody > tr > .button-td {
+    text-align: center;
+  }
+  @media screen and (max-width: 610px) {
+    .filter-container div select,
+    .filter-container #quarter-number-filter {
+      font-size: 12px;
+    }
+    .btn-primary {
+      font-size: 12px;
+      padding: 8px 18px;
+      margin: 0 10px 0 0;
+    }
+  }
+  @media screen and (max-width: 365px) {
+    .btn-primary {
+      margin-block: 5px;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!--<div id="notification-bar" class="hidden"></div>-->
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div id="show-filter-container">
+        Show Filters <i class="tim-icons icon-minimal-down"></i>
+      </div>
+      <div class="filter-container">
+        <div class="quarter-number-filter">
+          <label for="quarter-number-filter">Filter by Quarter Number:</label>
+          <input type="text" id="quarter-number-filter" />
+        </div>
+        <div>
+          <label for="quarter-type-filter">Filter by Quarter Type:</label>
+          <select id="quarter-type-filter">
+            <option value="">All</option>
+            {% for value in quarterType %}
+            <option value="{{ value }}">{{ value }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="meter-type-filter">Filter by Meter Type:</label>
+          <select id="meter-type-filter">
+            <option value="">All</option>
+            <option value="metered">Metered</option>
+            <option value="unmetered">Unmetered</option>
+          </select>
+        </div>
+        <div>
+          <label for="id_month_selection">Month</label>
+          <select id="id_month_selection" name="selected_month">
+            <option value="">All</option>
+            <option value="1">January (01)</option>
+            <option value="2">February (02)</option>
+            <option value="3">March (03)</option>
+            <option value="4">April (04)</option>
+            <option value="5">May (05)</option>
+            <option value="6">June (06)</option>
+            <option value="7">July (07)</option>
+            <option value="8">August (08)</option>
+            <option value="9">September (09)</option>
+            <option value="10">October (10)</option>
+            <option value="11">November (11)</option>
+            <option value="12">December (12)</option>
+          </select>
+        </div>
+        <div>
+          <label for="id_year_selection">Year</label>
+          <select id="id_year_selection" name="selected_year">
+            <option value="">All</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">List of Bills</h4>
+                <div>
+                  <a href="/fetch_bill.html">
+                    <button type="" class="btn btn-fill btn-primary">
+                      Generate Bill
+                    </button>
+                  </a>
+                  <a href="">
+                    <button type="" class="btn btn-fill btn-primary">
+                      Download Bulk
+                    </button>
+                  </a>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table tablesorter" id="">
+                    <thead class="text-primary">
+                      <tr>
+                        <th class="text-center">Username</th>
+                        <th class="text-center">Quarter Number</th>
+                        <th class="text-center">Quarter Type</th>
+                        <th class="text-center">Total Amount</th>
+                        <th class="text-center">Metering</th>
+                        <th class="text-center">Month</th>
+                        <th class="text-center">Year</th>
+                        <th class="text-center">Download</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for bill in meteredBill %}
+                      <tr>
+                        <td class="text-center">{{ bill.user_name }}</td>
+                        <td class="text-center quarter-number-column">
+                          {{ bill.room_number }}
+                        </td>
+                        <td class="text-center quarter-type-column">
+                          {{ bill.quarter_type }}
+                        </td>
+                        <td class="text-center">{{ bill.total_bill }}</td>
+                        <td class="text-center meter-type-column">Metered</td>
+                        <td class="text-center month-column">
+                          {{ bill.month }}
+                        </td>
+                        <td class="text-center year-column">{{ bill.year }}</td>
+                        <td class="td-actions button-td">
+                          <a
+                            href="{% url 'metered_bill.html' bill.metered_bill_id %}"
+                            class="btn btn-link"
+                            data-toggle="tooltip"
+                            title="Download Bill"
+                            target="_blank"
+                          >
+                            <i class="tim-icons icon-cloud-download-93"></i>
+                          </a>
+                        </td>
+                      </tr>
+                      {% endfor %} {% for bill in unmeteredBill %}
+                      <tr>
+                        <td class="text-center">{{ bill.user_name }}</td>
+                        <td class="text-center quarter-number-column">
+                          {{ bill.room_number }}
+                        </td>
+                        <td class="text-center quarter-type-column">
+                          {{ bill.quarter_type }}
+                        </td>
+                        <td class="text-center">{{ bill.total_bill }}</td>
+                        <td class="text-center meter-type-column">Unmetered</td>
+                        <td class="text-center month-column">
+                          {{ bill.month }}
+                        </td>
+                        <td class="text-center year-column">{{ bill.year }}</td>
+                        <td class="td-actions button-td">
+                          <a
+                            href="{% url 'unmetered_bill.html' bill.unmetered_bill_id %}"
+                            class="btn btn-link"
+                            data-toggle="tooltip"
+                            title="Download Bill"
+                            target="_blank"
+                          >
+                            <i class="tim-icons icon-cloud-download-93"></i>
+                          </a>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endblock content %}
+
+      <!-- Specific Page JS goes HERE -->
+      {% block javascripts %}
+      <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+      <script>
+        $(document).ready(function () {
+          // Function to handle table filtering
+          function filterTable() {
+            var quarterNumber = $("#quarter-number-filter").val().trim();
+            var quarterType = $("#quarter-type-filter").val();
+            var meterType = $("#meter-type-filter").val();
+            var selectedMonth = $("#id_month_selection").val();
+            var selectedYear = $("#id_year_selection").val();
+
+            $(".table tbody tr").each(function () {
+              var row = $(this);
+              var quarterNumberColumn = row
+                .find(".quarter-number-column")
+                .text()
+                .trim();
+              var quarterTypeColumn = row
+                .find(".quarter-type-column")
+                .text()
+                .trim();
+              var meterTypeColumn = row
+                .find(".meter-type-column")
+                .text()
+                .trim()
+                .toLowerCase();
+              var monthColumn = row.find(".month-column").text().trim();
+              var yearColumn = row.find(".year-column").text().trim();
+
+              var showRow =
+                (quarterNumber === "" ||
+                  quarterNumberColumn === quarterNumber) &&
+                (quarterType === "" || quarterTypeColumn === quarterType) &&
+                (meterType === "" ||
+                  meterTypeColumn === meterType.toLowerCase()) &&
+                (selectedMonth === "" || monthColumn === selectedMonth) &&
+                (selectedYear === "" || yearColumn === selectedYear);
+
+              if (showRow) {
+                row.show();
+              } else {
+                row.hide();
+              }
+            });
+          }
+
+          // Trigger filtering when any filter is changed
+          $(
+            "#quarter-number-filter, #quarter-type-filter, #meter-type-filter, #id_month_selection, #id_year_selection"
+          ).change(function () {
+            filterTable();
+          });
+
+          // Initial filtering on page load
+          filterTable();
+        });
+        const showFilterBtn = document.getElementById("show-filter-container");
+        const filterContainer = document.querySelector(".filter-container");
+        showFilterBtn.addEventListener("click", () => {
+          filterContainer.classList.toggle("show");
+          if (filterContainer.classList.contains("show")) {
+            showFilterBtn.innerHTML =
+              "Hide Filters <i class='tim-icons icon-minimal-up'></i>";
+          } else {
+            showFilterBtn.innerHTML =
+              "Show Filters <i class='tim-icons icon-minimal-down'></i>";
+          }
+        });
+      </script>
+      {% endblock %}
+    </div>
+  </div>
+</div>

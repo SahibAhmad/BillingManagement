@@ -1,0 +1,273 @@
+{% extends "layouts/base.html" %} {% block title %}Add Meter Rate {%endblock%}
+
+<!-- Specific Page CSS goes HERE -->
+{% block stylesheets %}
+<style>
+  .main-panel > .content {
+    padding: 0;
+  }
+
+  .container {
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .row {
+    margin: 0;
+  }
+
+  .offset-md-3 {
+    margin-left: 0;
+  }
+
+  .card {
+    min-height: calc(100vh - 270px);
+    left: 300px;
+    min-width: calc(100vw - 400px);
+    margin-block: 0;
+  }
+
+  .card * {
+    font-size: large;
+  }
+
+  .card .title {
+    font-size: 2rem;
+  }
+
+  .card label {
+    font-size: 1rem;
+  }
+
+  .form-control {
+    height: calc(3rem + 2px);
+  }
+
+  /*select option {
+    color: black;
+  }
+  select option:checked {
+    color: rgb(0, 228, 0);
+  }*/
+
+  @media screen and (max-width: 992px) {
+    .card {
+      left: 200px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .card {
+      left: 0;
+    }
+  }
+
+  @media screen and (max-width: 576px) {
+    .card * {
+      font-size: medium;
+    }
+
+    .card .title {
+      font-size: 1.6rem;
+    }
+
+    .card label {
+      font-size: 0.8rem;
+    }
+
+    .form-control {
+      height: calc(2.7rem + 2px);
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="content">
+  <div class="container">
+    <div class="row pt-5">
+      <div class="col-md-6 mt-5 offset-md-3 pt-5 mt-5">
+        <div class="card">
+          <div class="card-header text-center py-4">
+            <h4 class="title">Add Meter Rate</h4>
+          </div>
+
+          <form role="form" method="post" action="">
+            {% csrf_token %}
+            <div class="card-body px-5 py-3">
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label for="id_rate_name">Rate Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="id_rate_name"
+                    name="rate_name"
+                    required
+                  />
+                </div>
+                <div class="form-group col-md-4">
+                  <label for="id_fixed_charges">Fixed Charges (Rs/kW)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    class="form-control"
+                    id="id_fixed_charges"
+                    name="fixed_charges"
+                    required
+                  />
+                </div>
+                <div class="form-group col-md-4">
+                  <label for="id_electricity_duty">Electricity Duty</label>
+                  <input
+                    type="number"
+                    step="any"
+                    class="form-control"
+                    id="id_electricity_duty"
+                    name="electricity_duty"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div id="ranges_container">
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label for="id_from_0">From</label>
+                    <input
+                      type="number"
+                      step="any"
+                      class="form-control"
+                      id="id_from_0"
+                      name="from_0"
+                      value="0"
+                      required
+                      disabled
+                    />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="id_to_0">To</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="id_to_0"
+                      name="to_0"
+                      value="Max"
+                      required
+                      disabled
+                    />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="id_rate_0">Rate (Rs/kWh)</label>
+                    <input
+                      type="number"
+                      step="any"
+                      class="form-control"
+                      id="id_rate_0"
+                      name="rate_0"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-12 text-center">
+                  <button
+                    type="button"
+                    class="btn btn-fill btn-primary"
+                    id="id_btn_add"
+                    onclick="addRange()"
+                  >
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-fill btn-primary"
+                    id="id_btn_remove"
+                    onclick="removeRange()"
+                    disabled
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-center">
+              <button type="submit" class="btn btn-fill btn-primary">
+                Create Meter Rate
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let rangeCount = 1;
+
+  function addRange() {
+    const container = document.getElementById("ranges_container");
+
+    const div = document.createElement("div");
+    div.classList.add("form-row");
+
+    div.innerHTML = `
+      <div class="form-group col-md-4">
+        <label for="id_from_${rangeCount}">From</label>
+        <input type="number" step="any" class="form-control" id="id_from_${rangeCount}" name="from_${rangeCount}" required />
+      </div>
+      <div class="form-group col-md-4">
+        <label for="id_to_${rangeCount}">To</label>
+        <input type="text" class="form-control" id="id_to_${rangeCount}" name="to_${rangeCount}" value="Max" required disabled />
+      </div>
+      <div class="form-group col-md-4">
+        <label for="id_rate_${rangeCount}">Rate (Rs/kWh)</label>
+        <input type="number" step="any" class="form-control" id="id_rate_${rangeCount}" name="rate_${rangeCount}" required />
+      </div>
+    `;
+
+    container.appendChild(div);
+    rangeCount++;
+
+    const prev_to = document.getElementById(`id_to_${rangeCount - 2}`);
+    const curr_from = document.getElementById(`id_from_${rangeCount - 1}`);
+    prev_to.setAttribute("value", "");
+    prev_to.setAttribute("type", "number");
+    prev_to.setAttribute("step", "any");
+    prev_to.removeAttribute("disabled");
+    prev_to.addEventListener("input", () => (curr_from.value = prev_to.value));
+    curr_from.addEventListener(
+      "input",
+      () => (prev_to.value = curr_from.value)
+    );
+
+    document.querySelector("#id_btn_remove").removeAttribute("disabled");
+  }
+
+  function removeRange() {
+    const container = document.getElementById("ranges_container");
+    const lastRange = container.lastElementChild;
+    container.removeChild(lastRange);
+    rangeCount--;
+
+    const curr_to = document.getElementById(`id_to_${rangeCount - 1}`);
+    curr_to.removeEventListener("input", () => {});
+    curr_to.setAttribute("type", "text");
+    // curr_to.setAttribute('value', 'Max'); // trath ?
+    curr_to.value = "Max";
+    curr_to.setAttribute("disabled", true);
+
+    if (rangeCount === 1) {
+      document.querySelector("#id_btn_remove").setAttribute("disabled", true);
+    }
+  }
+</script>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE -->
+<!-- {% block javascripts %}
+
+{% endblock javascripts %} -->

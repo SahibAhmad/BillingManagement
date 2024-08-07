@@ -1,0 +1,329 @@
+{% extends "layouts/base.html" %} {% block title %}Update/Set Readings
+{%endblock %}
+
+<!-- Specific Page CSS goes HERE -->
+{% block stylesheets %}
+<style>
+  .main-panel > .content {
+    padding: 0;
+  }
+  .container {
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .row {
+    margin: 0;
+  }
+  .offset-md-3 {
+    margin-left: 0;
+  }
+  .card {
+    min-height: calc(100vh - 270px);
+    left: 300px;
+    min-width: calc(100vw - 400px);
+    margin-block: 0;
+  }
+  .card * {
+    font-size: large;
+  }
+  .card .title {
+    font-size: 2rem;
+  }
+  .card label {
+    font-size: 1rem;
+  }
+  .form-control {
+    height: calc(3rem + 2px);
+  }
+  select option {
+    color: black;
+  }
+  select option:checked {
+    color: rgb(0, 228, 0);
+  }
+
+  #notification-bar {
+    font-size: large;
+    font-weight: bolder;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    z-index: 9999;
+  }
+  .hidden {
+    display: none;
+  }
+  .success {
+    background-color: #4caf50;
+  }
+  .error {
+    background-color: #f44336;
+  }
+  .form-control[disabled],
+  .form-control[readonly],
+  fieldset[disabled] .form-control {
+    color: white;
+  }
+
+  .white-content .form-control[readonly],
+  .white-content fieldset[disabled] .form-control {
+    color: black;
+  }
+
+  @media screen and (max-width: 992px) {
+    .card {
+      left: 200px;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    .card {
+      left: 0;
+    }
+  }
+  @media screen and (max-width: 576px) {
+    .card * {
+      font-size: medium;
+    }
+    .card .title {
+      font-size: 1.6rem;
+    }
+    .card label {
+      font-size: 0.8rem;
+    }
+    .form-control {
+      height: calc(2.7rem + 2px);
+    }
+  }
+</style>
+
+{% endblock %} {% block content %}
+<div id="notification-bar" class="hidden"></div>
+
+<div class="content">
+  <div class="container">
+    <div class="row pt-5">
+      <div class="col-md-6 mt-5 offset-md-3 pt-5 mt-5">
+        <div class="card">
+          <div class="card-header text-center py-4">
+            <h4 class="title">Update/Set Readings</h4>
+          </div>
+
+          <form role="form" method="post" action="{% url 'update-readings' %}">
+            {% csrf_token %}
+            <div class="card-body px-5 py-3">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="id_room_id">Quarter Number</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="id_room_id"
+                    name="room_number"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                  <label for="id_access">Quarter Type</label>
+                  <select
+                    class="form-control"
+                    id="id_access"
+                    name="quarter_type"
+                  >
+                    {% for value in quarterType %}
+                    <option value="{{ value }}">{{ value }}</option>
+                    {% endfor %}
+                  </select>
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="id_month_selection">Select a Month</label>
+                  <select
+                    class="form-control"
+                    id="id_month_selection"
+                    name="selected_month"
+                  >
+                    <option value="" disabled selected>Select Month</option>
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                  </select>
+                  <span class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                  <label for="id_selected_year">Select a Year</label>
+                  <div class="input-group">
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="id_selected_year"
+                      name="selected_year"
+                      min="2023"
+                      value=""
+                      readonly
+                    />
+                    <span class="input-group-btn">
+                      <button
+                        type="button"
+                        class="btn btn-default"
+                        onclick="decreaseYear()"
+                      >
+                        -
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-default"
+                        onclick="increaseYear()"
+                      >
+                        +
+                      </button>
+                    </span>
+                  </div>
+                  <span class="text-danger"></span>
+                </div>
+
+                <script>
+                  document.addEventListener("DOMContentLoaded", function () {
+                    const yearInput =
+                      document.getElementById("id_selected_year");
+                    const currentYear = new Date().getFullYear();
+                    yearInput.value = currentYear;
+                  });
+                  function increaseYear() {
+                    const yearInput =
+                      document.getElementById("id_selected_year");
+                    let currentYear = parseInt(yearInput.value, 10);
+                    if (currentYear < 3000) {
+                      yearInput.value = currentYear + 1;
+                    }
+                  }
+
+                  function decreaseYear() {
+                    const yearInput =
+                      document.getElementById("id_selected_year");
+                    let currentYear = parseInt(yearInput.value, 10);
+                    if (currentYear > 2023) {
+                      yearInput.value = currentYear - 1;
+                    }
+                  }
+                </script>
+              </div>
+
+              <div class="form-row" id="initialReadingRow">
+                <div class="form-group col-md-6">
+                  <label for="id_room_id">Reading</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="id_room_id"
+                    name="initial_reading"
+                  />
+                  <span class="text-danger"></span>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-center">
+              <button type="submit" class="btn btn-fill btn-primary">
+                Submit
+              </button>
+            </div>
+          </form>
+          <script>
+            $(document).ready(function () {
+              $("form").on("submit", function (e) {
+                e.preventDefault();
+                $.ajax({
+                  url: $(this).attr("action"),
+                  type: $(this).attr("method"),
+                  data: $(this).serialize(),
+                  dataType: "json",
+                  success: function (response) {
+                    if (response.status === "success") {
+                      alert(response.message);
+                    } else if (response.status === "error") {
+                      alert(response.message);
+                    }
+                  },
+                  error: function () {
+                    alert("An error occurred while submitting the form.");
+                  },
+                });
+              });
+            });
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE -->
+{% block javascripts %}
+<script>
+  function toggleFields() {
+    const userSelect = document.getElementById("id_user_type");
+    const initialReadingRow = document.getElementById("initialReadingRow");
+    const meterRateRow = document.getElementById("meterRateRow");
+    const flatRateRow = document.getElementById("flatRateRow");
+
+    if (userSelect.value === "metered") {
+      initialReadingRow.style.display = "block";
+      meterRateRow.style.display = "block";
+      flatRateRow.style.display = "none";
+    } else if (userSelect.value === "un-metered") {
+      initialReadingRow.style.display = "none";
+      meterRateRow.style.display = "none";
+      flatRateRow.style.display = "block";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const notificationBar = document.getElementById("notification-bar");
+
+    function showNotification(status, message) {
+      notificationBar.textContent = message;
+      notificationBar.classList.add(status);
+      notificationBar.classList.remove("hidden");
+      setTimeout(function () {
+        hideNotification();
+      }, 3000);
+    }
+
+    function hideNotification() {
+      notificationBar.textContent = "";
+      notificationBar.classList.remove("success", "error");
+      notificationBar.classList.add("hidden");
+    }
+
+    const successMessage = "{{ success_message }}";
+    const errorMessage = "{{ error_message }}";
+
+    if (successMessage.trim() !== "") {
+      showNotification("success", successMessage.trim());
+    }
+
+    if (errorMessage.trim() !== "") {
+      showNotification("error", errorMessage.trim());
+    }
+  });
+</script>
+
+{% endblock javascripts %}
