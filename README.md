@@ -7,13 +7,13 @@
 #### HTTPS
 
 ```bash
-git clone https://github.com/UsaidAijaz/BillingFullStack.git
+git clone https://github.com/SahibAhmad/BillingManagement.git
 ```
 
 #### SSH
 
 ```bash
-git clone git@github.com:UsaidAijaz/BillingFullStack.git
+
 ```
 
 ### Create a virtual environment
